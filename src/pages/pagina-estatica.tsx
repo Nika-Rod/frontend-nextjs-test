@@ -7,35 +7,14 @@
  * - A página deve ser atualizada a cada 1 minuto
  */
 
-import { useEffect, useState } from 'react';
-
 import styles from '@/styles/lista.module.css';
 import { ICity } from '@/types/city.d';
+import type { GetStaticProps, NextPage } from "next";
 
-export default function Lista() {
-	const [list, setUsers] = useState<Array<ICity>>([
-		{
-			id: new Date().getTime().toString(),
-			name: 'São Paulo',
-		},
-	]);
-
-	async function getList() {
-		try {
-			const response = await fetch('/api/cities/10');
-			const data = await response.json();
-
-			if (!response.ok) throw new Error('Erro ao obter os dados');
-
-			setUsers(data);
-		} catch (error) {
-			console.error(error);
-		}
-	}
-
-	useEffect(() => {
-		getList();
-	}, []);
+interface Cidades {
+	list: ICity[]
+}
+const Lista: NextPage<Cidades> = ({ list }) => {
 
 	return (
 		<div className={styles.container}>
@@ -52,4 +31,16 @@ export default function Lista() {
 			</div>
 		</div>
 	);
-}
+};
+
+export const getStaticProps: GetStaticProps<Cidades> = async () => {
+	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8080';
+	const response = await fetch(`${baseUrl}/api/cities/10`);
+	const list = (await response.json()) as ICity[];
+
+	return {
+		props: { list }, revalidate: 60
+	};
+};
+
+export default Lista;
