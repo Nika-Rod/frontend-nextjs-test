@@ -11,11 +11,21 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next/types';
-
+import { faker } from '@faker-js/faker/locale/pt_BR';
+import { ApiMethod } from '@/decorators/method';
 import { IUser } from '@/types/user.d';
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
-	const users: Array<unknown> = [];
+export default ApiMethod('GET')(async(req: NextApiRequest, res: NextApiResponse) => {
+	const users: IUser[] = [];
 
-	return res.status(500).json(users);
-};
+	for (let i = 0; i < 10; i++ ) {
+		const firstName = faker.person.firstName();
+		users.push({
+			id: faker.string.uuid(),
+			name: firstName,
+			email: faker.internet.email({ firstName: firstName})
+		})
+	}
+
+	return res.status(200).json(users);
+});

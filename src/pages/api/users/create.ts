@@ -11,11 +11,21 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next/types';
+import { ApiMethod } from '@/decorators/method';
+import { IUserCreate } from '@/types/user.d';
 
-import { IUser, IUserCreate } from '@/types/user.d';
+export default ApiMethod('POST')(async (req: NextApiRequest, res: NextApiResponse) => {
 
-const users: IUser[] = [];
+	const { email, name } = req.body as IUserCreate;
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+	const espacoBranco = /\S+/
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
-	return res.status(400).json(undefined);
-};
+	if (!email || !emailRegex.test(email)) {
+		return res.status(400).json({ error: 'Email inválido' });
+	} else if (!name || !espacoBranco.test(name)) {
+		return res.status(400).json({ error: 'Existem Campos em branco' });
+	} else {
+		return res.status(200).json({ sucess: 'Usuário criado com sucesso' });
+	}
+}
+);
